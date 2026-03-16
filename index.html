@@ -1,0 +1,508 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); }
+
+  #game-wrap { padding: 1rem 0; }
+
+  .scene-card {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+  }
+
+  .scene-header {
+    padding: 1rem 1.25rem 0.75rem;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .scene-badge {
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 99px;
+    background: #E6F1FB;
+    color: #0C447C;
+    font-weight: 500;
+  }
+
+  .score-display {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+  }
+
+  .score-num {
+    font-weight: 500;
+    color: var(--color-text-primary);
+  }
+
+  .progress-bar-wrap {
+    height: 3px;
+    background: var(--color-background-secondary);
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: #378ADD;
+    transition: width 0.5s ease;
+  }
+
+  .scene-body { padding: 1.25rem; }
+
+  .location-tag {
+    font-size: 11px;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .location-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #378ADD;
+    flex-shrink: 0;
+  }
+
+  .scene-illustration {
+    width: 100%;
+    height: 110px;
+    border-radius: var(--border-radius-md);
+    background: var(--color-background-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 52px;
+    margin-bottom: 1rem;
+  }
+
+  .story-text {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--color-text-primary);
+    margin-bottom: 1rem;
+  }
+
+  .challenge-box {
+    background: var(--color-background-secondary);
+    border-radius: var(--border-radius-md);
+    padding: 0.875rem 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .challenge-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: #185FA5;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 0.375rem;
+  }
+
+  .challenge-text {
+    font-size: 14px;
+    color: var(--color-text-primary);
+    line-height: 1.5;
+  }
+
+  .choices { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1rem; }
+
+  .choice-btn {
+    text-align: left;
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-secondary);
+    border-radius: var(--border-radius-md);
+    padding: 0.75rem 1rem;
+    font-size: 14px;
+    color: var(--color-text-primary);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    font-family: var(--font-sans);
+    line-height: 1.4;
+  }
+
+  .choice-btn:hover:not(:disabled) {
+    background: var(--color-background-secondary);
+    border-color: var(--color-border-primary);
+  }
+
+  .choice-btn.correct {
+    background: #EAF3DE;
+    border-color: #639922;
+    color: #27500A;
+  }
+
+  .choice-btn.wrong {
+    background: #FCEBEB;
+    border-color: #A32D2D;
+    color: #501313;
+  }
+
+  .choice-btn:disabled { cursor: default; }
+
+  .feedback-box {
+    border-radius: var(--border-radius-md);
+    padding: 0.75rem 1rem;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    display: none;
+  }
+
+  .feedback-box.correct {
+    background: #EAF3DE;
+    border: 0.5px solid #639922;
+    color: #27500A;
+  }
+
+  .feedback-box.wrong {
+    background: #FCEBEB;
+    border: 0.5px solid #A32D2D;
+    color: #501313;
+  }
+
+  .feedback-title {
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+    font-size: 14px;
+  }
+
+  .next-btn {
+    width: 100%;
+    padding: 0.75rem;
+    background: #378ADD;
+    color: #E6F1FB;
+    border: none;
+    border-radius: var(--border-radius-md);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    display: none;
+    transition: background 0.15s;
+  }
+
+  .next-btn:hover { background: #185FA5; }
+
+  .result-card {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    padding: 2rem 1.5rem;
+    text-align: center;
+    display: none;
+  }
+
+  .result-trophy { font-size: 56px; margin-bottom: 1rem; }
+
+  .result-title {
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--color-text-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .result-subtitle {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+  }
+
+  .result-stats {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .stat-item { text-align: center; }
+
+  .stat-num {
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--color-text-primary);
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    margin-top: 2px;
+  }
+
+  .restart-btn {
+    padding: 0.75rem 2rem;
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-secondary);
+    border-radius: var(--border-radius-md);
+    font-size: 14px;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    color: var(--color-text-primary);
+    transition: background 0.15s;
+  }
+
+  .restart-btn:hover { background: var(--color-background-secondary); }
+</style>
+
+<div id="game-wrap">
+  <div class="scene-card" id="scene-card">
+    <div class="scene-header">
+      <span class="scene-badge" id="scene-label">Scene 1 / 6</span>
+      <span class="score-display">score: <span class="score-num" id="score-val">0</span></span>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+    <div class="scene-body">
+      <div class="location-tag"><span class="location-dot"></span><span id="location-name"></span></div>
+      <div class="scene-illustration" id="scene-emoji"></div>
+      <p class="story-text" id="story-text"></p>
+      <div class="challenge-box">
+        <div class="challenge-label">What do you say?</div>
+        <div class="challenge-text" id="challenge-text"></div>
+      </div>
+      <div class="choices" id="choices"></div>
+      <div class="feedback-box" id="feedback-box">
+        <div class="feedback-title" id="feedback-title"></div>
+        <div id="feedback-body"></div>
+      </div>
+      <button class="next-btn" id="next-btn"></button>
+    </div>
+  </div>
+
+  <div class="result-card" id="result-card">
+    <div class="result-trophy" id="result-trophy"></div>
+    <div class="result-title" id="result-title"></div>
+    <div class="result-subtitle" id="result-subtitle"></div>
+    <div class="result-stats">
+      <div class="stat-item">
+        <div class="stat-num" id="res-score"></div>
+        <div class="stat-label">최종 점수</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="res-correct"></div>
+        <div class="stat-label">정답 수</div>
+      </div>
+    </div>
+    <button class="restart-btn" onclick="restartGame()">다시 도전하기</button>
+  </div>
+</div>
+
+<script>
+const scenes = [
+  {
+    location: "JFK Airport, New York",
+    emoji: "✈️",
+    story: "You just landed in New York! You're at passport control. The officer looks at you and says, \"What is the purpose of your visit?\"",
+    challenge: "You came for a sightseeing trip. How do you respond?",
+    choices: [
+      { text: "I am here for tourism.", correct: true },
+      { text: "I come here for tourist.", correct: false },
+      { text: "My purpose is touristic.", correct: false }
+    ],
+    feedback: {
+      correct: "Perfect! \"I am here for tourism\" is natural and clear. Using 'for + noun' is the right structure here.",
+      wrong: "\"I am here for tourism\" is the correct answer. 'Tourist' is a person, not a purpose. 'Touristic' is rarely used in everyday speech."
+    }
+  },
+  {
+    location: "Manhattan Coffee Shop",
+    emoji: "☕",
+    story: "You find a cozy café in Manhattan. The barista smiles at you and asks, \"Hi there! What can I get for you?\"",
+    challenge: "You want a large latte. How do you order?",
+    choices: [
+      { text: "Give me large latte.", correct: false },
+      { text: "Can I get a large latte, please?", correct: true },
+      { text: "I want you give me a latte large.", correct: false }
+    ],
+    feedback: {
+      correct: "Great choice! \"Can I get...?\" is the most common and natural way to order in American cafés. Very polite and fluent!",
+      wrong: "\"Can I get a large latte, please?\" is the most natural option. \"Give me\" sounds too blunt, and the third option has incorrect word order."
+    }
+  },
+  {
+    location: "Times Square",
+    emoji: "🗽",
+    story: "You're exploring Times Square but you're completely lost! You see a friendly local standing nearby.",
+    challenge: "How do you politely ask for directions to Central Park?",
+    choices: [
+      { text: "Where is Central Park?", correct: false },
+      { text: "Excuse me, could you tell me how to get to Central Park?", correct: true },
+      { text: "Hey! Central Park is where?", correct: false }
+    ],
+    feedback: {
+      correct: "Excellent! Starting with \"Excuse me\" is polite and gets attention. \"Could you tell me...\" is a soft, indirect request — perfect for approaching strangers.",
+      wrong: "\"Excuse me, could you tell me how to get to Central Park?\" is best. Direct questions like \"Where is...\" aren't wrong, but they can sound abrupt to native speakers."
+    }
+  },
+  {
+    location: "Central Park",
+    emoji: "🌳",
+    story: "You meet Jamie, another traveler, sitting on a bench in Central Park. Jamie asks, \"Have you been to New York before?\"",
+    challenge: "This is your first time in New York. How do you reply?",
+    choices: [
+      { text: "No, it's my first time here.", correct: true },
+      { text: "No, I never came here before.", correct: false },
+      { text: "No, I haven't never been here.", correct: false }
+    ],
+    feedback: {
+      correct: "Spot on! \"It's my first time here\" is the most natural, common phrasing. Simple and confident!",
+      wrong: "\"No, it's my first time here\" is the correct answer. \"I never came\" should use the present perfect: \"I've never been here.\" \"Haven't never\" is a double negative — avoid it!"
+    }
+  },
+  {
+    location: "Chelsea Art Gallery",
+    emoji: "🎨",
+    story: "You visit a gallery in Chelsea. You love one of the paintings! The artist is right next to you and says, \"Do you like it?\"",
+    challenge: "You really love it. How do you express your appreciation?",
+    choices: [
+      { text: "It's very beautiful very much.", correct: false },
+      { text: "I absolutely love it — the colors are stunning!", correct: true },
+      { text: "This is good painting, I like.", correct: false }
+    ],
+    feedback: {
+      correct: "Wonderful! Using adverbs like \"absolutely\" and vivid adjectives like \"stunning\" makes your English expressive and natural. Artists love specific compliments!",
+      wrong: "\"I absolutely love it — the colors are stunning!\" sounds the most fluent. \"Very beautiful very much\" mixes two intensifiers awkwardly. The third option is missing key grammar."
+    }
+  },
+  {
+    location: "JFK Airport (Departure)",
+    emoji: "👋",
+    story: "Your trip is over. At the airport, you run into Jamie again! Jamie says, \"It was so great meeting you. Safe travels!\"",
+    challenge: "How do you say goodbye warmly?",
+    choices: [
+      { text: "Same to you! It was a pleasure meeting you too.", correct: true },
+      { text: "You also! I liked to meet you.", correct: false },
+      { text: "Same! Meeting you was pleasure.", correct: false }
+    ],
+    feedback: {
+      correct: "Perfect farewell! \"It was a pleasure meeting you\" is a classic, warm closing phrase. You'll sound like a natural English speaker!",
+      wrong: "\"Same to you! It was a pleasure meeting you too.\" is the most natural. \"I liked to meet you\" should be \"I liked meeting you.\" The third option is missing an article before 'pleasure.'"
+    }
+  }
+];
+
+let currentScene = 0;
+let score = 0;
+let correctCount = 0;
+let answered = false;
+
+function loadScene(idx) {
+  const s = scenes[idx];
+  answered = false;
+  document.getElementById('scene-label').textContent = `Scene ${idx + 1} / ${scenes.length}`;
+  document.getElementById('score-val').textContent = score;
+  document.getElementById('progress-fill').style.width = (idx / scenes.length * 100) + '%';
+  document.getElementById('location-name').textContent = s.location;
+  document.getElementById('scene-emoji').textContent = s.emoji;
+  document.getElementById('story-text').textContent = s.story;
+  document.getElementById('challenge-text').textContent = s.challenge;
+
+  const choicesEl = document.getElementById('choices');
+  choicesEl.innerHTML = '';
+  s.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = `${String.fromCharCode(65 + i)}. ${c.text}`;
+    btn.onclick = () => handleChoice(c, btn);
+    choicesEl.appendChild(btn);
+  });
+
+  const fb = document.getElementById('feedback-box');
+  fb.style.display = 'none';
+  fb.className = 'feedback-box';
+
+  const nextBtn = document.getElementById('next-btn');
+  nextBtn.style.display = 'none';
+  nextBtn.textContent = idx < scenes.length - 1 ? 'Next scene →' : 'See results →';
+}
+
+function handleChoice(choice, btn) {
+  if (answered) return;
+  answered = true;
+
+  const allBtns = document.querySelectorAll('.choice-btn');
+  allBtns.forEach(b => {
+    b.disabled = true;
+    const scene = scenes[currentScene];
+    const isCorrect = scene.choices.find(c => b.textContent.includes(c.text))?.correct;
+    if (isCorrect) b.classList.add('correct');
+  });
+
+  const fb = document.getElementById('feedback-box');
+  fb.style.display = 'block';
+
+  if (choice.correct) {
+    btn.classList.add('correct');
+    score += 20;
+    correctCount++;
+    fb.className = 'feedback-box correct';
+    document.getElementById('feedback-title').textContent = '✓ Correct!';
+    document.getElementById('score-val').textContent = score;
+  } else {
+    btn.classList.add('wrong');
+    fb.className = 'feedback-box wrong';
+    document.getElementById('feedback-title').textContent = '✗ Not quite...';
+  }
+
+  document.getElementById('feedback-body').textContent = choice.correct
+    ? scenes[currentScene].feedback.correct
+    : scenes[currentScene].feedback.wrong;
+
+  document.getElementById('next-btn').style.display = 'block';
+}
+
+document.getElementById('next-btn').addEventListener('click', () => {
+  currentScene++;
+  if (currentScene >= scenes.length) {
+    showResult();
+  } else {
+    loadScene(currentScene);
+  }
+});
+
+function showResult() {
+  document.getElementById('scene-card').style.display = 'none';
+  const rc = document.getElementById('result-card');
+  rc.style.display = 'block';
+
+  const pct = correctCount / scenes.length;
+  let trophy, title, subtitle;
+
+  if (pct === 1) {
+    trophy = '🏆'; title = 'Perfect Score!';
+    subtitle = '모든 문제를 맞췄어요! 영어 실력이 매우 뛰어나네요. 뉴욕 어디서든 자신 있게 대화할 수 있을 거예요!';
+  } else if (pct >= 0.7) {
+    trophy = '⭐'; title = 'Great job!';
+    subtitle = '훌륭해요! 일상적인 영어 표현들을 잘 알고 있네요. 조금만 더 연습하면 완벽해질 거예요!';
+  } else if (pct >= 0.4) {
+    trophy = '📚'; title = 'Keep practicing!';
+    subtitle = '절반 이상 맞췄어요! 틀린 문제의 피드백을 다시 읽어보고 한 번 더 도전해 보세요.';
+  } else {
+    trophy = '💪'; title = 'Don\'t give up!';
+    subtitle = '처음엔 누구나 어려워요. 각 장면의 피드백을 잘 읽어보고 다시 도전해 보세요. 할 수 있어요!';
+  }
+
+  document.getElementById('result-trophy').textContent = trophy;
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('result-subtitle').textContent = subtitle;
+  document.getElementById('res-score').textContent = score;
+  document.getElementById('res-correct').textContent = `${correctCount} / ${scenes.length}`;
+}
+
+function restartGame() {
+  currentScene = 0; score = 0; correctCount = 0;
+  document.getElementById('result-card').style.display = 'none';
+  document.getElementById('scene-card').style.display = 'block';
+  loadScene(0);
+}
+
+loadScene(0);
+</script>
